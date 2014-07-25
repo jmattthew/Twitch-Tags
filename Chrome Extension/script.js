@@ -1,8 +1,8 @@
 /*
 
 Open-source, copyright free, non-commercial.  
-Make it better!  One gitbug:
-http://
+Make it better!  One Github:
+https://github.com/jmattthew/Twitch-Tags
 
 TO DO:  hook into twitch login system to allow users to transport their tags between browsers/devices 
 
@@ -31,9 +31,11 @@ var searchResults = [];
 var serverQ = [];
 var streamName = ''; 
 var userIDHash = '';
-var suggestTimeout;
-//var tkServerHREF = 'http://mattthew.t15.org/'
-var tkServerHREF = 'http://localhost/'; // *** testing
+var suggestTimeout; // used with setTimeout 
+var flagTolerance = 10; // number of users who need to flag before we hide
+var tkServerHREF = 'http://mattthew.t15.org/'
+// var tkServerHREF = 'http://localhost/'; // get data from local test server
+var suppressLog = true; // used to suppress debugging sent with console.assert 
 
 // colors added by JS
 var tagInputColor = '#000';
@@ -109,7 +111,6 @@ function getData() {
 			// then self detruct 
 			var serverTimeout = setTimeout(function(){
 				dataFailure('init');
-				console.log('tk fail: init');
 			}, 10000);
 
 			// first get communityTags	
@@ -118,6 +119,7 @@ function getData() {
 				cache: false,
 				dataType: 'text',
 				success: function(response) {
+					console.assert(suppressLog, 'call:' + this.url + '\nresponse:' + response);
 					convertLocalCommunityTags(response);
 					// next get userTags
 					$.ajax({
@@ -125,6 +127,7 @@ function getData() {
 						cache: false,
 						dataType: 'text',
 						success: function(response) {
+							console.assert(suppressLog, 'call:' + this.url + '\nresponse:' + response);
 							convertLocalUserTags(response);
 							// next get searchTags
 							$.ajax({
@@ -132,6 +135,7 @@ function getData() {
 								cache: false,
 								dataType: 'text',
 								success: function(response) {
+									console.assert(suppressLog, 'call:' + this.url + '\nresponse:' + response);
 									clearTimeout(serverTimeout);
 									convertLocalSearchTags(response);
 									// got all data, now start
@@ -287,12 +291,12 @@ function createNewUser() {
 		cache: false,
 		dataType: 'text',
 		success: function(response) {
+			console.assert(suppressLog, 'call:' + this.url + '\nresponse:' + response);
 			$('#tk_firstRun').remove();
 			$('#tk_firstRunButton').remove();
 			if(response.indexOf('tku_') == -1) {
 				// a valid server responce will start with 'tku_'
 				dataFailure('user');
-				console.log('tk fail: user');
 			} else {
 				// server sends a salted hash of the users ID
 				// this creates the new user's local ID 
@@ -356,7 +360,7 @@ function insertNewTagInput() {
 	$('#tk_tagAddHolder').append(str);
 
 	// filter out searchTags that have already been entered
-	var suggestionTags = searchTags; // need to preserve searchTags
+	var suggestionTags = searchTags.slice(0); // need to preserve searchTags
 	var iL=communityTags.length;
 	for(var i=0; i<iL; i++) {
 		for(var j=0; j<suggestionTags.length; j++) {
@@ -666,8 +670,8 @@ function bindTagHolderEvents() {
 		str += '<strong>Information Twitch+Tags collects:</strong>';
 		str += '<span>The only information this browser app collects is the set of tags that you add and/or vote on.  T+T <i>never</i> accesses or stores your Twitch login name, nor your password, nor your viewing habits.  You are identified by an anonymous browser cookie.  To delete your votes, delete the T+T cookie or uninstall the app.</span>'
 		str += '<strong>How to help or report a issue:</strong>';
-		str += '<span>Thanks!  First, please keep tagging the streams that you visit.  If you like this app, please tell other people about it.  To report a problem or make a comment send me a <a href="http://www.twitch.tv/message/compose?to=jmattthew" target="_blank">twitch message</a>.</span>';
-		str += '<strong>This is an open-source, fan supported project.</strong>';
+		str += '<span>Thanks!  First, please keep tagging the streams that you visit.  If you like this app, please tell other people about it.  To report an issue or make a comment send me a <a href="http://www.twitch.tv/message/compose?to=jmattthew" target="_blank">twitch message</a>.</span>';
+		str += '<strong>This is an open-source, fan supported project:</strong>';
 		str += '<span>Neither this browser app nor it\'s contributors are affiliated with Twitch Interactive, Inc. in any way.  Thanks for installing!</span>';
 		str += '</div></div>';
 		$('BODY').append(str);
@@ -769,7 +773,7 @@ function bindTagHolderEvents() {
 		$(this).css('display','none');
 		var str = '';
 		str += '<span class="tk_flagConfirm">';
-		str += '<span>Flag as inappropriate &amp; hide forever?</span>';
+		str += '<span>Flag as offensive &amp; hide forever?</span>';
 		str += '<a href="#" id="tk_flagNo_' + tagName + '">no</a>';
 		str += '<a href="#" id="tk_flagYes_' + tagName + '">yes</a></span>';
 		$(el).append(str);
@@ -895,6 +899,14 @@ function insertSearchBar() {
 	$(twitchSearchHolder).css('top',y+'px');
 	$('#tk_searchBar').html('<input id="tk_tagSearch" value="Enter Search Tags">');
 
+	var str = '';
+	// add results title and closer
+	str += '<div id="tk_srTitle">';
+	str += '<span>Steams with Those Tags</span>';
+	str += '<a href="#">hide</a></div>';
+	$('#tk_searchResults').append(str);
+	$('#tk_searchResults').css('display','none');
+
 	for(var i=0; i<searchTags.length; i++) {
 		availableTags[i] = searchTags[i].tagName;
 	}
@@ -918,6 +930,7 @@ function bindSearchBarEvents() {
 		}
 		$(this).css('color','');
 	});
+
 	// 
 	$('#tk_tagSearch').keyup(function(event) {
 		var i = this.selectionStart;
@@ -935,7 +948,7 @@ function bindSearchBarEvents() {
 			// strip trailing dash
 			str = str.replace(/-$/,'');
 			// strip spaces
-			str = str.return(' ','');
+			str = str.replace(' ','');
 			getSearchResults(str);
 			this.value = '';
 			this.blur();
@@ -943,6 +956,12 @@ function bindSearchBarEvents() {
 	}); 
 
 	//
+	$('#tk_srTitle').find('A').click(function(event) {
+		$('#tk_searchResults').css('display','none');
+		return false;
+	});
+
+	// jquery.UI
 	function split( val ) {
 		return val.split( /,\s*/ );
 	}
@@ -950,7 +969,7 @@ function bindSearchBarEvents() {
 		return split( term ).pop();
 	}
 
-	// jquery.UI
+	//
 	$('#tk_tagSearch')
 		.bind('keydown', function( event ) {
 			// don't navigate away from the field on tab when selecting an item
@@ -988,7 +1007,6 @@ function bindSearchBarEvents() {
 function getSearchResults(searchTerms) {
 	var serverTimeout = setTimeout(function(){
 		dataFailure('search');
-		console.log('tk fail: search');
 	}, 10000);
 
 	$.ajax({
@@ -996,6 +1014,7 @@ function getSearchResults(searchTerms) {
 		cache: false,
 		dataType: 'text',
 		success: function(response) {
+			console.assert(suppressLog, 'call:' + this.url + '\nresponse:' + response);
 			clearTimeout(serverTimeout);
 			convertLocalSearchResults(response);
 			populateSearchResults();
@@ -1027,36 +1046,33 @@ function populateSearchResults() {
 	});	
 
 	var str = '';
-	// add results title and closer
-	str += '<div id="tk_srTitle">';
-	str += '<span>Steams with Those Tags</span>';
-	str += '<a href="#">hide</a></div>';
-	$('#tk_searchResults').append(str);
 
-	// add results to DOM
+	// update DOM with results
 	str = '';
-	for(var i=0; i<searchResults.length; i++) {
-		str += '<a href="#" class="tk_srRow">';
-		str += '<div class="tk_srStream">' + searchResults[i].streamName + '</div>';
-		str += '<div class="tk_srTags">';
-		for(var j=0; j<searchResults[i].matchedTags.length; j++) {
-			str += '<div class="tk_srTag"><div class="tk_srTagName">' + searchResults[i].matchedTags[j].tagName + '</div>';
-			str += '<div class="tk_srTotal">' + searchResults[i].matchedTags[j].total + '</div></div>';
+	if(searchResults.length > 0) {
+		$('.tk_srRow').remove();
+		for(var i=0; i<searchResults.length; i++) {
+			str += '<a href="#" class="tk_srRow">';
+			str += '<div class="tk_srStream">' + searchResults[i].streamName + '</div>';
+			str += '<div class="tk_srTags">';
+			for(var j=0; j<searchResults[i].matchedTags.length; j++) {
+				str += '<div class="tk_srTag"><div class="tk_srTagName">' + searchResults[i].matchedTags[j].tagName + '</div>';
+				str += '<div class="tk_srTotal">' + searchResults[i].matchedTags[j].total + '</div></div>';
+			}
+			str += '</div>';
+			str += 	'</a>'		
 		}
-		str += '</div>';
-		str += 	'</a>'		
+		$('#tk_searchResults').append(str);
+	
+		// bind row events
+		$('.tk_srRow').click(function(event) {
+			$(this).attr('href','http://twitch.tv/' + $(this).find('.tk_srStream').html());
+		});
+
 	}
-	$('#tk_searchResults').append(str);
 
-	// bind events
-	$('#tk_srTitle').find('A').click(function(event) {
-		$('#tk_searchResults').html('');
-		return false;
-	});
-
-	$('.tk_srRow').click(function(event) {
-		$(this).attr('href','http://twitch.tv/' + $(this).find('.tk_srStream').html());
-	});
+	// show the title
+	$('#tk_searchResults').css('display','block');
 
 }
 
@@ -1108,7 +1124,6 @@ function sendEntryServerQ() {
 
 		var serverTimeout = setTimeout(function(){
 			dataFailure('update');
-			console.log('tk fail: update');
 		}, 10000);
 
 		$.ajax({
@@ -1116,7 +1131,10 @@ function sendEntryServerQ() {
 			cache: false,
 			dataType: 'text',
 			success: function(response) {
-				if(response == 'success') {	
+				console.assert(suppressLog, 'call:' + this.url + '\nresponse:' + response);
+				if(response.indexOf(':::success') > -1) {
+					// server response may include debug messages
+					// but it must also send :::success
 					clearTimeout(serverTimeout);
 				}
 				serverQ.splice(0,1);
@@ -1143,6 +1161,9 @@ function convertLocalCommunityTags(str) {
 			if(parseInt(phpInfo[1])==0 && parseInt(phpInfo[2])==0 && parseInt(phpInfo[3])==0) {
 				// current we never delete info from the DB
 				// but we won't locally include communityTags with no votes
+			} else if(parseInt(phpInfo[3]) > flagTolerance) {
+				// current we never delete info from the DB
+				// but we won't locally include tags that have been flagged too much
 			} else {
 				communityTags[num] = {};
 				communityTags[num].tagName = phpInfo[0];
@@ -1243,33 +1264,31 @@ function convertLocalSearchResults(str) {
 		}
 	}
 	if(num == 0) {
-		dataFailure('search');
-		console.log('fail: convert searchResults');
+		dataFailure('noResults');
 	}
 }
 
 function dataFailure(type) {
   	var str = '';
-	str += 'Twitch+Tags: ';
-	str += 'Sorry, I can\'t communicate with the server. ';
-	str += 'It\'s probably a temporary problem. ';
-	str += 'Try again later or send me a ';
-	str += '<a href="http://www.twitch.tv/message/compose?to=jmattthew" target="_blank">Twitch message</a> ';
-	str += ' so I can try to fix it.';
+  	console.log('T+T dataFailure: ' + type);
+	str += 'Twitch+Tags: Sorry, I can\'t communicate with the T+T server. It\'s probably a temporary problem. Try refreshing the page. If the error persists, send me a <a href="http://www.twitch.tv/message/compose?to=jmattthew" target="_blank">Twitch message</a> and I\'ll look into it.';
 	if(type == 'init' || type == 'user' || type == 'update') {
-    	$('#tk_tagHolder').append(str);
+		// disable all functionality
     	$('#tk_tagAddHolder').css('display','none');
     	$('#tk_searchBar').css('display','none');
     	$('#tk_searchResults').css('display','none');
+    	if($('#tk_fail').length == 0) {
+	    	$('#tk_tagHolder').append('<div id="tk_fail"></div>');
+	    	$('#tk_fail').html(str);
+		}
 	} else {
-		str = '<div id="tk_srTitle">';
-		str += '<span>Steams with Those Tags</span>';
-		str += '<a href="#">hide</a></div>';
-		str += 'No results found!  Try another search.';
-		$('#tk_searchResults').html(str);
+		$('.tk_srRow').remove();
+		if(type == 'noResults') {
+			str = 'No streams found with those tags.';
+		}
+		$('#tk_searchResults').append('<div class="tk_srRow"><div class="tk_srStream">' + str + '</div></div>');
 	}
 }
-
 
 
 

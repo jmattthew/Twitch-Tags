@@ -342,7 +342,7 @@
 	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 	color: rgb(126, 126, 126);
 	outline: medium none;
-	background: url('/images/xarth/left_col_search_icon.svg') no-repeat scroll 8px center rgba(255, 255, 255, 0.05);
+	background: url('http://twitch.tv/images/xarth/left_col_search_icon.svg') no-repeat scroll 8px center rgba(255, 255, 255, 0.05);
 }
 
 #tk_searchResults {
@@ -387,20 +387,21 @@
 	display: block;
 	clear: left;
 	border-top: 1px solid rgb(68, 68, 68);
+	background-color: rgb(100, 65, 165);
 }
 
 .tk_srRow:hover {
 	text-decoration: none;
-	background-color: rgb(43, 43, 43);
+	background-color: rgb(145, 123, 187);
 }
 
 .tk_srStream {
 	padding: 6px 0px 6px 6px;
-	color: rgb(117, 117, 117);
+	color: rgb(0,0,0);
 }
 
 .tk_srTags {
-	background-color: rgba(255, 255, 255, 0.09);
+	background-color: rgba(0, 0, 0, 0.28);
 	padding-bottom: 6px;
 }
 
@@ -416,7 +417,7 @@
 	float: left;
 	border-radius: 3px;
 	box-shadow: inset -1px -1px 0px 0px rgba(0, 0, 0, 0.5);	
-	background-color: rgb(126, 108, 160);
+	background-color: rgb(141, 127, 168);
 	margin-left: 6px;
 	margin-top: 6px;
 	padding: 0px 6px;
