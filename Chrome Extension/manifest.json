@@ -1,11 +1,12 @@
 {
 	"name": "Twitch+Tags",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"manifest_version": 2,	
 	"description": "Find new streamers by searching for tags entered by the community.  Tag your favorite streams!",
 	"content_scripts": [
 		{
 			"matches": [ "http://www.twitch.tv/*", "https://www.twitch.tv/*" ],
+			"css": [ "styles.css", "jquery-ui.css" ],
 			"js": [ "jquery-1.11.1.min.js", "jquery-ui.min.js", "script.js" ]
 		} 
 	],

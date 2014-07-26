@@ -300,7 +300,8 @@
 }
 
 .tk_flagConfirm {
-	color: rgb(100, 65, 165);	
+	color: rgb(100, 65, 165);
+	line-height: 22px;	
 }
 
 .tk_flagConfirm A {

@@ -1,5 +1,7 @@
 /*
 
+CHROME VERSION
+
 Open-source, copyright free, non-commercial.  
 Make it better!  One Github:
 https://github.com/jmattthew/Twitch-Tags
@@ -35,7 +37,7 @@ var suggestTimeout; // used with setTimeout
 var flagTolerance = 10; // number of users who need to flag before we hide
 var tkServerHREF = 'http://mattthew.t15.org/'
 // var tkServerHREF = 'http://localhost/'; // get data from local test server
-var suppressLog = true; // used to suppress debugging sent with console.log 
+var suppressLog = true; // used to suppress debugging sent with console.alert 
 
 // colors added by JS
 var tagInputColor = '#000';
@@ -53,17 +55,15 @@ var twitchSearchHolder = $('#large_nav #nav');
 var twitchResultsHolder = $('#nav_personal');
 var twitchPlayer = $('#player');
 
-var tagTemplate = '';
-tagTemplate = '<div id="tk_tag_$TN$" class="tk_tag">';
-tagTemplate += '<div class="tk_tagName">$TN$</div>';
-tagTemplate += '<div class="tk_tagTotal">$VT$</div>';
-tagTemplate += '<a href="#" class="tk_tagButtonUp">';
-tagTemplate += '<i class="fa fa-thumbs-o-up fa-lg"></i></a>';
-tagTemplate += '<a href="#" class="tk_tagButtonDown fa fa-flip-horizontal">';
-tagTemplate += '<i class="fa fa-thumbs-o-down fa-lg"></i></a>';
-tagTemplate += '<a href="#" class="tk_tagButtonFlag"><i class="fa fa-bolt fa-lg"></i></a>'
-tagTemplate += '</div>';
-
+var tagTemplate = $('<div>', { class: 'tk_tag' });
+tagTemplate.append($('<div>', { class: 'tk_tagName' }));
+tagTemplate.append($('<div>', { class: 'tk_tagTotal' }));
+tagTemplate.append($('<a>', { class: 'tk_tagButtonUp', href: '#' }));
+tagTemplate.find('.tk_tagButtonUp').append($('<i>', { class: 'fa fa-thumbs-o-up fa-lg' }));
+tagTemplate.append($('<a>', { class: 'tk_tagButtonDown fa fa-flip-horizontal', href: '#' }));
+tagTemplate.find('.tk_tagButtonDown').append($('<i>', { class: 'fa fa-thumbs-o-down fa-lg' }));
+tagTemplate.append($('<a>', { class: 'tk_tagButtonFlag', href: '#' }));
+tagTemplate.find('.tk_tagButtonFlag').append($('<i>', { class: 'fa fa-bolt fa-lg' }));
 
 
 
@@ -87,8 +87,11 @@ getData();
 // MISC FUNCTIONS
 // ==========================
 function beforeData() {
-	insertStyles();
-	insertHolders();
+	streamName = getSteamName(); 
+	if(streamName != '') {
+		insertHolders();
+		insertStyles();
+	}
 }
 
 // Retreive Data from server 
@@ -98,7 +101,6 @@ function beforeData() {
 
 function getData() {
 
-	streamName = getSteamName(); 
 	userIDHash = getuserIDHash();
 
 	if(streamName != '') {
@@ -214,29 +216,25 @@ function createTotals() {
 	}
 }
 
-function insertStyles() {
-	var str = '';
-	str += '<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css">';
-
-	$('HEAD').append(str);
-}
-
 function insertHolders() {
 	if(twitchResultsHolder.length == 0) {
 		// logged out
 		twitchResultsHolder = $('#nav_primary');
 	}
 	if(twitchActions.length != 1 || twitchSearch.length != 1 || twitchSearchHolder.length != 1 || twitchResultsHolder.length != 1) {
+
 		// twitch changed their element IDs so add a holder
-		var str = '';
-		str += '<div id="tk_missingElHolder">';
-		str += '<a href="#" id="tk_showHide">Twitch+Tags - Sorry!  Twitch changed their webpage so we\'ll have to keep tags down here until the next time I update this broswer app.</a>';
-		str += '<div id="tk_slider"><div id="tk_tagAddHolder"></div>';
-		str += '<div id="tk_tagHolder"></div>';
-		str += '<div id="tk_searchResults"></div>';
-		str += '<div id="tk_searchBar"></div>';
-		str += '</div></div>';
-		$('BODY').append(str);
+		$('BODY').append($('<div>', { id: 'tk_missingElHolder' }));
+		$('#tk_missingElHolder').append($('<a>', { 
+			href: '#', 
+			id: 'tk_showHide', 
+			text: 'Twitch+Tags - Sorry!  Twitch changed their webpage so we\'ll have to keep tags down here until the next time I update this broswer app.'
+			}));
+		$('#tk_missingElHolder').append($('<div>', { id: 'tk_slider' }));
+		$('#tk_slider').append($('<div>', { id: 'tk_tagAddHolder' }));
+		$('#tk_slider').append($('<div>', { id: 'tk_tagHolder' }));
+		$('#tk_slider').append($('<div>', { id: 'tk_searchResults' }));
+		$('#tk_slider').append($('<div>', { id: 'tk_searchBar' }));
 		// ensure it's visible
 		/*
 		var highest = 0;   
@@ -252,25 +250,28 @@ function insertHolders() {
 	    $('#tk_showHide').data('closed','true');
 	    bindMissingELHolderEvents();
 	} else {
-		str = '<div id="tk_tagAddHolder"></div>';
-		$(twitchActions).wrap('<div id="tk_actionsHolder"></div>');
-		$(twitchActions).parent().append(str);
-		str = '<div id="tk_tagHolder"></div>';
-		$(twitchActions).parent().after(str);
-		str = '<div id="tk_searchBar"></div>';
-		$(twitchSearch).after(str);
-		str = '<div id="tk_searchResults"></div>';
-		$(twitchResultsHolder).before(str);
+		$(twitchActions).wrap($('<div>',{ id: 'tk_actionsHolder' }));
+		$(twitchActions).parent().append($('<div>',{ id: 'tk_tagAddHolder' }));
+		$(twitchActions).parent().after($('<div>',{ id: 'tk_tagHolder' }));
+		$(twitchSearch).after($('<div>',{ id: 'tk_searchBar' }));
+		$(twitchResultsHolder).before($('<div>',{ id: 'tk_searchResults' }));
 	}
+}
+
+//
+function insertStyles() {
+	$('HEAD').append('<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css">');
 }
 
 // 
 function insertFirstRunMessage() {
 	// Welcome new user and tell them what to do with extension
 	// 'got it!' button 
-	var str = '';
-	str = '<div id="tk_firstRun">Thanks for installing the Twitch+Tags browser app :^)  <strong>Please tag as many streamers as you can!</strong>  Community members depend on each other to add tags, especially while we\'re still in beta.  Each streamers\'s tags will be displayed right here.   To discover new streams, use the tag search bar right under the twitch search bar.  To begin, click \'Got it!\'</div><button id="tk_firstRunButton" class="button primary">Got it!</a>';
-	$('#tk_tagHolder').html(str);
+	$('#tk_tagHolder').append($('<div>',{ id: 'tk_firstRun' }));
+	$('#tk_firstRun').append($('<span>', { text: 'Thanks for installing the Twitch+Tags browser app :^) ' }));
+	$('#tk_firstRun').append($('<strong>', { text: ' Please tag as many streamers as you can! ' }));
+	$('#tk_firstRun').append($('<span>',{ text: ' Community members depend on each other to add tags, especially while we\'re still in beta.  Each streamers\'s tags will be displayed right here.   To discover new streams, use the tag search bar right under the twitch search bar.  To begin, click \'Got it!\'' }));
+	$('#tk_tagHolder').append($('<button>', { id: 'tk_firstRunButton', class: 'button primary', text: 'Got it!' }));
 }
 
 //
@@ -350,12 +351,9 @@ function bindMissingELHolderEvents() {
 
 // 
 function insertNewTagInput() {
-	var str = '';
-	str += '<input id="tk_tagInput" value="Add a new tag!">';
-	str += '<div id="tk_tagSuggestions">';
-	str += '<div id="tk_suggestionTitle">Add a Popular Tag</div>';
-	str += '</div>';
-	$('#tk_tagAddHolder').append(str);
+	$('#tk_tagAddHolder').append($('<input>', { id: 'tk_tagInput', value: 'Add a new tag!' }));
+	$('#tk_tagAddHolder').append($('<div>', { id: 'tk_tagSuggestions' }));
+	$('#tk_tagSuggestions').append($('<div>', { id: 'tk_suggestionTitle', text: 'Add a Popular Tag' }));
 
 	// filter out searchTags that have already been entered
 	var suggestionTags = searchTags.slice(0); // need to preserve searchTags
@@ -378,8 +376,7 @@ function insertNewTagInput() {
 
 	// add them to the list
 	for(var i=0; i<suggestionTags.length && i<16; i++) {
-		str = '<a href="#" class="tk_suggestionRow">' + suggestionTags[i].tagName + '</a>';
-		$('#tk_tagSuggestions').append(str);
+		$('#tk_tagSuggestions').append($('<a>',{ href: '#', class: 'tk_suggestionRow', text: suggestionTags[i].tagName }));
 	}
 
 	// keep list from pushing page down
@@ -501,7 +498,7 @@ function bindTagInputEvents() {
 
 	//
 	$('.tk_suggestionRow').click(function(event) {
-		var tagName = $(this).html();
+		var tagName = $(this).text();
 		createNewTag(tagName);
 		// remove from suggestions
 		$(this).remove();
@@ -529,10 +526,11 @@ function createNewTag(tagName) {
 	userTags[aL].votes.down = false;
 	userTags[aL].votes.flag = false;
 	// add tag to DOM
-	var tagHTML = tagTemplate;
-	tagHTML = tagHTML.replace(/\$TN\$/g,tagName);
-	tagHTML = tagHTML.replace('$VT$','1');
-	$('#tk_tagHolder').prepend(tagHTML);
+	var newTag = $(tagTemplate).clone();
+	$(newTag).attr('id', 'tk_tag_' + tagName);
+	$(newTag).find('.tk_tagName').text(tagName);
+	$(newTag).find('.tk_tagTotal').text('1');
+	$('#tk_tagHolder').prepend(newTag);
 	var el = $('#tk_tag_' + tagName);
 	$(el).css('opacity','0');
 	$(el).fadeTo(500,1);
@@ -565,7 +563,6 @@ function createNewTag(tagName) {
 
 // 
 function fillTagHolder() {
-	var str = '';
 	// sort communityTags by total
 	communityTags.sort(function(a, b) {
 		var aSort = a.votes.total;
@@ -575,26 +572,24 @@ function fillTagHolder() {
 	// add them to the list
 	for(var i=0; i<communityTags.length; i++) {
 		var item = communityTags[i];
-		var tagHTML = tagTemplate;
-		tagHTML = tagHTML.replace(/\$TN\$/g,item.tagName);
-		tagHTML = tagHTML.replace('$VT$',item.votes.total);
-		$('#tk_tagHolder').append(tagHTML);
+		var newTag = $(tagTemplate).clone();
+		$(newTag).attr('id', 'tk_tag_' + item.tagName);
+		$(newTag).find('.tk_tagName').text(item.tagName);
+		$(newTag).find('.tk_tagTotal').text(item.votes.total);
+		$('#tk_tagHolder').append(newTag);
 	}
 	// no tags message
 	if(communityTags.length == 0) {
-		str = '<div id="tk_noTagsMessage">Twitch+Tags:  Be the first person to add a tag to this stream!</div>';
-		$('#tk_tagHolder').append(str);
+		$('#tk_tagHolder').append($('<div>', { id: 'tk_noTagsMessage', text: 'Twitch+Tags:  Be the first person to add a tag to this stream!' }));
 	}
 
 	// add show more link
-	str = '<a id="tk_tagSizer" href="#">show more tags</a>';
-	$('#tk_tagAddHolder').append(str);
+	$('#tk_tagAddHolder').append($('<a>',{ id: 'tk_tagSizer', href: '#', text: 'show more tags' }));
 	$('#tk_tagSizer').data('size','small');
 	$('#tk_tagHolder').css('max-height',tagHolderSmallHeight + 'px')
 
 	// add about link
-	str = '<a id="tk_aboutLink" href="#">Twitch+Tags FAQ</a>';
-	$('#tk_tagAddHolder').append(str);
+	$('#tk_tagAddHolder').append($('<a>',{ id: 'tk_aboutLink', href: '#', text: 'Twitch+Tags FAQ' }));
 }
 
 //
@@ -609,7 +604,8 @@ function removeUserFlagged() {
 function resizeTagHolder() {
 	if($(twitchPlayer).length == 1) {
 		var x = $(twitchPlayer).width();
-		x -= 400;
+		x -= $('#tk_actionsHolder').width();
+		x -= 200;
 		$('#tk_tagHolder').css('width',x + 'px')
 	}
 }
@@ -638,7 +634,7 @@ function updateAllTagsUserHighlight() {
 function updateThisTagTotalDisplay(el,tagName) {
 	for(var i=0; i<communityTags.length; i++) {
 		if(communityTags[i].tagName == tagName) {
-			$(el).find('.tk_tagTotal').html(communityTags[i].votes.total);
+			$(el).find('.tk_tagTotal').text(communityTags[i].votes.total);
 			break;
 		}
 	}
@@ -651,28 +647,27 @@ function bindTagHolderEvents() {
 		if($(this).data('size') == 'small') {
 			$('#tk_tagHolder').css('max-height','10000px');
 			$(this).data('size','large');
-			$(this).html('show less tags');
+			$(this).text('show less tags');
 		} else {
 			$('#tk_tagHolder').css('max-height',tagHolderSmallHeight + 'px');
 			$(this).data('size','small');
-			$(this).html('show more tags');
+			$(this).text('show more tags');
 		}
 		return false;
 	});
 
 	//
 	$('#tk_aboutLink').click(function(event) {
-		var str = '';
-		str += '<div id="tk_aboutClickZone"></div>';
-		str += '<div href="#" id="tk_aboutModal"><div>';
-		str += '<strong>Information Twitch+Tags collects:</strong>';
-		str += '<span>The only information this browser app collects is the set of tags that you add and/or vote on.  T+T <i>never</i> accesses or stores your Twitch login name, nor your password, nor your viewing habits.  You are identified by an anonymous browser cookie.  To delete your votes, delete the T+T cookie or uninstall the app.</span>'
-		str += '<strong>How to help or report a issue:</strong>';
-		str += '<span>Thanks!  First, please keep tagging the streams that you visit.  If you like this app, please tell other people about it.  To report an issue or make a comment send me a <a href="http://www.twitch.tv/message/compose?to=jmattthew" target="_blank">twitch message</a>.</span>';
-		str += '<strong>This is an open-source, fan supported project:</strong>';
-		str += '<span>Neither this browser app nor it\'s contributors are affiliated with Twitch Interactive, Inc. in any way.  Thanks for installing!</span>';
-		str += '</div></div>';
-		$('BODY').append(str);
+		$('BODY').append($('<div>',{ id: 'tk_aboutClickZone' }));
+		$('BODY').append($('<div>',{ id: 'tk_aboutModal' }));
+		$('#tk_aboutModal').append($('<div>', { id: 'tk_aboutModalInner'}));
+		$('#tk_aboutModalInner').append($('<strong>', { text: 'Information Twitch+Tags collects:' }));
+		$('#tk_aboutModalInner').append($('<span>', { text: 'The only information this browser app collects is the set of tags that you add and/or vote on.  T+T <i>never</i> accesses or stores your Twitch login name, nor your password, nor your viewing habits.  You are identified by an anonymous browser cookie.  To delete your votes, delete the T+T cookie or uninstall the app.' }));
+		$('#tk_aboutModalInner').append($('<strong>', { text: 'How to help or report a issue:' }));
+		$('#tk_aboutModalInner').append($('<span>', { id: 'tk_aboutModalInnerLink', text: 'Thanks!  First, please keep tagging the streams that you visit.  If you like this app, please tell other people about it.  To report an issue or make a comment send me a ' }));
+		$('#tk_aboutModalInnerLink').append($('<a>', { href: 'http://www.twitch.tv/message/compose?to=jmattthew', target: '_blank', text: 'twitch message' }));
+		$('#tk_aboutModalInner').append($('<strong>', { text: 'This is an open-source, fan supported project:' }));
+		$('#tk_aboutModalInner').append($('<span>', { text: 'Neither this browser app nor it\'s contributors are affiliated with Twitch Interactive, Inc. in any way.  Thanks for installing!' }));
 
 		// position it
 	    var docWidth = $( window ).width();
@@ -769,12 +764,10 @@ function bindTagHolderEvents() {
 		var tagName = $(el).attr('id').substr(7);
 		// display confirm
 		$(this).css('display','none');
-		var str = '';
-		str += '<span class="tk_flagConfirm">';
-		str += '<span>Flag as offensive &amp; hide forever?</span>';
-		str += '<a href="#" id="tk_flagNo_' + tagName + '">no</a>';
-		str += '<a href="#" id="tk_flagYes_' + tagName + '">yes</a></span>';
-		$(el).append(str);
+		$(el).append($('<span>',{ class: 'tk_flagConfirm' }));
+		$(el).find('.tk_flagConfirm').append($('<span>', { text: 'Flag as offensive & hide forever?' }));
+		$(el).find('.tk_flagConfirm').append($('<a>', { id: 'tk_flagNo_' + tagName, href: '#', text: 'no' }));
+		$(el).find('.tk_flagConfirm').append($('<a>', { id: 'tk_flagYes_' + tagName, href: '#', text: 'yes' }));
 		// bind confirm events
 		$('#tk_flagNo_' + tagName).click(function(event) {
 			$(this).parent().remove();
@@ -895,16 +888,14 @@ function insertSearchBar() {
 	t = t.substr(0,t.length-2);
 	var y = parseInt(t)+50;
 	$(twitchSearchHolder).css('top',y+'px');
-	$('#tk_searchBar').html('<input id="tk_tagSearch" value="Enter Search Tags">');
+	$('#tk_searchBar').append($('<input>',{ id: 'tk_tagSearch', value: 'Enter Search Tags' }));
 
 	var str = '';
 	// add results title and closer
-	str += '<div id="tk_srTitle">';
-	str += '<span>Steams with Those Tags</span>';
-	str += '<a href="#">hide</a></div>';
-	$('#tk_searchResults').append(str);
+	$('#tk_searchResults').append($('<div>',{ id: 'tk_srTitle' }));
+	$('#tk_srTitle').append($('<span>',{ text: 'Steams with Those Tags' }));
+	$('#tk_srTitle').append($('<a>',{ href: '#', text: 'hide' }));
 	$('#tk_searchResults').css('display','none');
-
 	for(var i=0; i<searchTags.length; i++) {
 		availableTags[i] = searchTags[i].tagName;
 	}
@@ -1050,21 +1041,22 @@ function populateSearchResults() {
 	if(searchResults.length > 0) {
 		$('.tk_srRow').remove();
 		for(var i=0; i<searchResults.length; i++) {
-			str += '<a href="#" class="tk_srRow">';
-			str += '<div class="tk_srStream">' + searchResults[i].streamName + '</div>';
-			str += '<div class="tk_srTags">';
-			for(var j=0; j<searchResults[i].matchedTags.length; j++) {
-				str += '<div class="tk_srTag"><div class="tk_srTagName">' + searchResults[i].matchedTags[j].tagName + '</div>';
-				str += '<div class="tk_srTotal">' + searchResults[i].matchedTags[j].total + '</div></div>';
+			var sR = searchResults[i];
+			$('#tk_searchResults').append($('<a>',{ href: '#', class: 'tk_srRow', id: 'tk_srRow_' + sR.streamName }));
+			var el = $('#tk_srRow_' + sR.streamName);
+			$(el).append($('<div>',{ class: 'tk_srStream', text: sR.streamName }));
+			$(el).append($('<div>',{ class: 'tk_srTags' }));
+			for(var j=0; j<sR.matchedTags.length; j++) {
+				$(el).find('.tk_srTags').append($('<div>',{ class: 'tk_srTag', id: 'tk_srTag_' + sR.streamName + '_' + sR.matchedTags[j].tagName }));
+				var el2 = $('#tk_srTag_' + sR.streamName + '_' + sR.matchedTags[j].tagName);
+				$(el2).append($('<div>',{ class: 'tk_srTagName', text: sR.matchedTags[j].tagName }));
+				$(el2).append($('<div>',{ class: 'tk_srTotal', text: sR.matchedTags[j].total }));
 			}
-			str += '</div>';
-			str += 	'</a>'		
 		}
-		$('#tk_searchResults').append(str);
 	
 		// bind row events
 		$('.tk_srRow').click(function(event) {
-			$(this).attr('href','http://twitch.tv/' + $(this).find('.tk_srStream').html());
+			$(this).attr('href','http://twitch.tv/' + $(this).find('.tk_srStream').text());
 		});
 
 	}
@@ -1138,7 +1130,8 @@ function sendEntryServerQ() {
 				serverQ.splice(0,1);
 				sendEntryServerQ();				
 			},
-		});	
+		});
+
 	}
 }
 
@@ -1269,25 +1262,48 @@ function convertLocalSearchResults(str) {
 function dataFailure(type) {
   	var str = '';
   	console.log('T+T dataFailure: ' + type);
-	str += 'Twitch+Tags: Sorry, I can\'t communicate with the T+T server. It\'s probably a temporary problem. Try refreshing the page. If the error persists, send me a <a href="http://www.twitch.tv/message/compose?to=jmattthew" target="_blank">Twitch message</a> and I\'ll look into it.';
 	if(type == 'init' || type == 'user' || type == 'update') {
 		// disable all functionality
     	$('#tk_tagAddHolder').css('display','none');
     	$('#tk_searchBar').css('display','none');
     	$('#tk_searchResults').css('display','none');
     	if($('#tk_fail').length == 0) {
-	    	$('#tk_tagHolder').append('<div id="tk_fail"></div>');
-	    	$('#tk_fail').html(str);
+	    	$('#tk_tagHolder').append($('<div>', { id: 'tk_fail' }));
+	    	$('#tk_fail').append($('<span>', { text: 'Twitch+Tags: Sorry, the T+T server was temporarily unavailable. Please ' }));
+	    	$('#tk_fail').append($('<a>', { id: 'tk_restartLink', href: '#', text: 'try again!' }));
+	    	$('#tk_fail').append($('<span>', { text: ' If this won\'t go away, send me a ' }));
+	    	$('#tk_fail').append($('<a>', { href: 'http://www.twitch.tv/message/compose?to=jmattthew', target: '_blank', text: 'Twitch message' }));
+	    	$('#tk_fail').append($('<span>', { text: ' and I\'ll look into it.' }));
 		}
 	} else {
 		$('.tk_srRow').remove();
-		if(type == 'noResults') {
-			str = 'No streams found with those tags.';
-		}
-		$('#tk_searchResults').append('<div class="tk_srRow"><div class="tk_srStream">' + str + '</div></div>');
+		$('#tk_searchResults').append($('<div>'), { class: 'tk_srRow' });
+		$('.tk_srRow').append($('<div>',{ class: 'tk_srStream', text: 'No streams found with those tags.' }));
 	}
+
+	$('#tk_restartLink').click(function(event) {
+		cleanStart();
+		insertHolders();
+		getData();
+		return false;
+	});
 }
 
+function cleanStart() {
+	communityTags = [];
+	userTags = [];
+	searchTags = [];
+	availableTags = [];
+	searchResults = [];
+	serverQ = [];
+	$('#tk_tagHolder').remove();
+	$('#tk_tagAddHolder').remove();
+	$('#tk_searchBar').remove();
+	$('#tk_searchResults').remove();
+	$(twitchSearchHolder).css('top','');
+	if($('#tk_missingElHolder').length > 0) { $('#tk_missingElHolder').remove(); }
+	$(twitchActions).unwrap();
+}
 
 
 
