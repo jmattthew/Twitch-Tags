@@ -890,7 +890,6 @@ function insertSearchBar() {
 	$(twitchSearchHolder).css('top',y+'px');
 	$('#tk_searchBar').append($('<input>',{ id: 'tk_tagSearch', value: 'Enter Search Tags' }));
 
-	var str = '';
 	// add results title and closer
 	$('#tk_searchResults').append($('<div>',{ id: 'tk_srTitle' }));
 	$('#tk_srTitle').append($('<span>',{ text: 'Steams with Those Tags' }));
@@ -1033,8 +1032,6 @@ function populateSearchResults() {
 		var bSort = b.total;
 		return bSort-aSort;
 	});	
-
-	var str = '';
 
 	// update DOM with results
 	str = '';
@@ -1260,7 +1257,6 @@ function convertLocalSearchResults(str) {
 }
 
 function dataFailure(type) {
-  	var str = '';
   	console.log('T+T dataFailure: ' + type);
 	if(type == 'init' || type == 'user' || type == 'update') {
 		// disable all functionality

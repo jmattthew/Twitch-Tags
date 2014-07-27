@@ -1,13 +1,23 @@
 {
 	"name": "Twitch+Tags",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"manifest_version": 2,	
 	"description": "Find new streamers by searching for tags entered by the community.  Tag your favorite streams!",
 	"content_scripts": [
 		{
-			"matches": [ "http://www.twitch.tv/*", "https://www.twitch.tv/*" ],
-			"css": [ "styles.css", "jquery-ui.css" ],
-			"js": [ "jquery-1.11.1.min.js", "jquery-ui.min.js", "script.js" ]
+			"matches": [ 
+				"http://www.twitch.tv/*", 
+				"https://www.twitch.tv/*" 
+			],
+			"css": [ 
+				"styles.css", 
+				"jquery-ui.css" 
+			],
+			"js": [ 
+				"jquery-1.10.2.min.js", 
+				"jquery-ui-1.10.4.min.js", 
+				"script.js" 
+			]
 		} 
 	],
 	"web_accessible_resources": [
@@ -15,8 +25,10 @@
 		"jquery-ui.css",
 		"images/ui-bg_flat_75_ffffff_40x100.png"
 	],
-	"icons": { "48": "icon.png", 
-              "128": "icon128.png" },
+	"icons": { 
+			"48": "icon.png", 
+           "128": "icon128.png" 
+	},
 	"permissions": [
 	]
 }

@@ -9,8 +9,8 @@ var self = require("sdk/self");
 pageMod.PageMod({
   include: "*.twitch.tv",
   contentScriptFile: [ 
-  	self.data.url("jquery-1.11.1.min.js"),
-  	self.data.url("jquery-ui.min.js"),
+  	self.data.url("jquery-1.10.2.min.js"),
+  	self.data.url("jquery-ui-1.10.4.min.js"),
   	self.data.url("script.js")
   ],
   contentStyleFile: [ 
