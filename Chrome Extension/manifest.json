@@ -1,6 +1,6 @@
 {
 	"name": "Twitch+Tags",
-	"version": "1.1.1",
+	"version": "1.2.0",
 	"manifest_version": 2,	
 	"description": "Find new streamers by searching for tags entered by the community.  Tag your favorite streams!",
 	"content_scripts": [

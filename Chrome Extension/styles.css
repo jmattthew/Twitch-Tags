@@ -84,10 +84,13 @@
 	font-size: 14px;
 }
 
-#tk_aboutModal DIV {
+#tk_aboutModalInner {
 	background-color: white;
 	border: 10px solid rgb(100, 65, 165);
 	padding: 20px;
+	height: 400px;
+	overflow-y: scroll;
+	color: rgb(144,144,144);
 }
 
 #tk_aboutModal STRONG {
@@ -99,6 +102,64 @@
 	margin-bottom: 20px;
 	display: block;
 }
+
+#tk_aboutTable {
+    font-size: 0px;
+    width: 369px;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 15px;
+    border-right: 1px solid rgb(200, 187, 224);
+    border-bottom: 1px solid rgb(200, 187, 224);
+}
+
+#tk_aboutTable div {
+    font-size: 14px;
+    display: inline-block;
+    vertical-align: top;
+    padding: 5px;
+    border-left: 1px solid rgb(200, 187, 224);
+    border-top: 1px solid rgb(200, 187, 224);
+}
+
+#tk_aboutTable .tk_tableStart {
+    line-height: 42px;
+    color: rgb(236, 231, 245);
+}
+
+#tk_aboutTable .tk_tableHead {
+    background-color: rgb(236, 231, 245);
+}
+
+#tk_aboutTable .tk_rowStart {
+    clear: left;
+    text-align: right;
+}
+
+#tk_aboutTable > div:nth-child(4n+1) {  
+    /* 1st col */
+    width: 100px;
+}
+
+#tk_aboutTable > div:nth-child(4n+2) {  
+    /* 2nd col */
+    width: 75px;
+}
+
+#tk_aboutTable > div:nth-child(4n-1) {  
+    /* 3rd col */
+    width: 75px;
+}
+
+#tk_aboutTable > div:nth-child(4n) {  
+    /* 4th col */
+    width: 75px;
+}
+
+
+
+
 
 
 
@@ -126,16 +187,15 @@
 	float: left;
 	width: 175px;
 	height: 25px;
-	background-color: rgba(0, 0, 0, 0.1);
+	padding-left: 7px;
+	font-size: 12px;
 	line-height: 25px;
 	box-sizing: border-box;
 	background-clip: padding-box;
-	border: 1px solid rgba(0, 0, 0, 0.3);
-	font-size: 12px;
+	background-color: rgba(255, 255, 255, 0.2);
 	color: rgb(192, 192, 192);
+	border: 1px solid rgba(0, 0, 0, 0.3);
 	outline: medium none;
-	background-color: rgba(0, 0, 0, 0.05);
-	padding-left: 7px;
 }
 
 #tk_tagSuggestions {
@@ -222,7 +282,7 @@
 	float: left;
 	border-radius: 3px;
 	border: 1px solid rgb(72, 44, 126);
-	background-color: rgba(100, 65, 165, 0.4);
+	background-color: rgb(189, 174, 218);
 	box-shadow: inset -1px -1px 0px 0px rgba(0, 0, 0, 0.32);	
 	margin-right: 10px;
 	margin-bottom: 10px;
@@ -245,6 +305,7 @@
 	padding-right: 6px;
 	color: black;
 	white-space: nowrap;
+	cursor: pointer;
 }
 
 .tk_tagTotal {
@@ -262,12 +323,15 @@
 	padding-right: 5px;
 }
 
-#tk_noTagsMessage {
+#tk_serverMessage {
 	float: left;
 	margin-top: 5px;
 	color: rgb(196, 192, 192);
 }
 
+#tk_serverMessage A {
+	color: rgb(100, 65, 165);
+}
 
 /*
 //                    TAG BUTTONS
@@ -277,41 +341,64 @@
 	width: 10px;
 }
 
+.tk_tagButtonUp I {
+	color: rgb(100, 65, 165);
+}
+
 .tk_tagButtonUp:hover {
 	text-decoration: none;
+}
+
+.tk_tagButtonUp:hover I {
+	color: rgb(100, 65, 165);
 }
 
 .tk_tagButtonDown {
 	width: 10px;
 }
 
+.tk_tagButtonDown I {
+	color: rgb(100, 65, 165);
+}
+
 .tk_tagButtonDown:hover {
 	text-decoration: none;
 }
 
+.tk_tagButtonDown:hover I {
+	color: rgb(100, 65, 165);
+}
+
 .tk_tagButtonFlag {
 	width: 10px;
-	color: rgba(100, 65, 165, 0.5);
+}
+
+.tk_tagButtonFlag I {
+	color: rgb(139, 112, 187);
 }
 
 .tk_tagButtonFlag:hover {
 	text-decoration: none;
+}
+
+.tk_tagButtonFlag:hover I {
 	color: rgb(100, 65, 165);  	
 }
 
 .tk_flagConfirm {
-	color: rgb(100, 65, 165);
 	line-height: 22px;	
 }
 
 .tk_flagConfirm A {
 	font-weight: bold;
 	text-decoration: underline;
+	color: rgb(100, 65, 165);
 }
 
 .tk_flagConfirm A:hover {
 	font-weight: bold;
 	text-decoration: none;
+	color: rgb(100, 65, 165);
 }
 
 
